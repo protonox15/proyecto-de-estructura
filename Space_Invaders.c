@@ -12,12 +12,17 @@
 #include <time.h>
 #include <conio.h>
 
+struct Jugador{
+int PuntuacionFinal;
+char Iniciales[10];
+};
+
 #define COLOR_RED     "\x1b[31m"
 #define COLOR_GREEN   "\x1b[32m"
 #define COLOR_RESET   "\x1b[0m"
 
 //{ Funciones del Sistema.
-// > FunciÛn Gotoxy. Permite posicionar el cursos en cualquier parte de la pantalla.
+// > Funci√≥n Gotoxy. Permite posicionar el cursos en cualquier parte de la pantalla.
 void Gotoxy(int x,int y){
     // Sea X la columna, y Y la fila.
     HANDLE hcon;
@@ -28,7 +33,7 @@ void Gotoxy(int x,int y){
     SetConsoleCursorPosition(hcon,dwPos);
 }
 
-// > FunciÛn OcultarCursor, que hace el cursor [_] invisible.
+// > Funci√≥n OcultarCursor, que hace el cursor [_] invisible.
 void OcultarCursor(){
     HANDLE hcon;
     hcon = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -38,29 +43,29 @@ void OcultarCursor(){
     SetConsoleCursorInfo(hcon, &cci);
 }
 
-// > FunciÛn Marco. Permite dibujar un recuadro con dimensiones especÌficas.
+// > Funci√≥n Marco. Permite dibujar un recuadro con dimensiones espec√≠ficas.
 void Marco(int xSup, int ySup, int xInf, int yInf, int Vidas){
-	// ImpresiÛn de lÌneas horizontales.
+	// Impresi√≥n de l√≠neas horizontales.
 	for(int Indice = xSup; Indice <= xInf; Indice++){
 		Gotoxy(Indice, ySup); printf("%c", 196);
 		Gotoxy(Indice, yInf); printf("%c", 196);
 	}
 
-	// ImpresiÛn de lÌneas verticales.
+	// Impresi√≥n de l√≠neas verticales.
 	for(int Indice = ySup; Indice <= yInf; Indice++){
 		Gotoxy(xSup, Indice); printf("%c", 179);
 		Gotoxy(xInf, Indice); printf("%c", 179);
 	}
 
-    // ImpresiÛn de la lÌnea horizontal de tÌtulo.
+    // Impresi√≥n de la l√≠nea horizontal de t√≠tulo.
     for(int Indice = 1; Indice <= 79; Indice++){
         Gotoxy(Indice, 2); printf("%c", 196);
 	}
 
-	// ImpresiÛn de la lÌnea vertical de tÌtulo.
+	// Impresi√≥n de la l√≠nea vertical de t√≠tulo.
 	Gotoxy(67, 1); printf("%c", 179);
 
-	// ImpresiÛn de las esquinas del marco.
+	// Impresi√≥n de las esquinas del marco.
 	Gotoxy(xSup, ySup); printf("%c", 218);
 	Gotoxy(xInf, yInf); printf("%c", 217);
 	Gotoxy(xInf, ySup); printf("%c", 191);
@@ -78,7 +83,7 @@ void Marco(int xSup, int ySup, int xInf, int yInf, int Vidas){
     }
 }
 
-// > FunciÛn BorrarPantalla. Limpia la pantalla.
+// > Funci√≥n BorrarPantalla. Limpia la pantalla.
 void BorrarPantalla(){
     for(int indiceFila = 3; indiceFila <= 24; indiceFila++){
         for(int indiceColumna = 1; indiceColumna <= 79; indiceColumna++){
@@ -89,7 +94,7 @@ void BorrarPantalla(){
 }
 //}
 
-// > FunciÛn que imprime la nave del jugador (presentada de color verde en consola).
+// > Funci√≥n que imprime la nave del jugador (presentada de color verde en consola).
 void NaveJugador(int Posicion_X, int Posicion_Y, bool LimpiarNave){
     if(LimpiarNave != true){
         // > Imprimir Nave.
@@ -112,7 +117,7 @@ void NaveJugador(int Posicion_X, int Posicion_Y, bool LimpiarNave){
     }
 }
 
-// > FunciÛn que imprime la nave enemiga (presentada de color rojo en consola).
+// > Funci√≥n que imprime la nave enemiga (presentada de color rojo en consola).
 void NaveEnemigos(int Posicion_X, int Posicion_Y, bool LimpiarNave){
     if(LimpiarNave != true){
         // > Imprimir Nave.
@@ -130,7 +135,7 @@ void NaveEnemigos(int Posicion_X, int Posicion_Y, bool LimpiarNave){
 
 }
 
-// > FunciÛn que valida el disparo realizado por el usaurio.
+// > Funci√≥n que valida el disparo realizado por el usaurio.
 void MovimientoDisparo(int Posicion_X, int Posicion_Y, bool LimpiarMisil){
     if(LimpiarMisil != true){
         Gotoxy(Posicion_X, Posicion_Y); printf("%c", 94);
@@ -147,7 +152,7 @@ struct NaveEnemiga{
     bool Nave_Muerta;
 }NavesEnemigas[60];
 
-// > FunciÛn principal: AquÌ se hace el llamado a las otras funciones y se genera el movimiento del jugador.
+// > Funci√≥n principal: Aqu√≠ se hace el llamado a las otras funciones y se genera el movimiento del jugador.
 void SpaceInvaders(){
     int VidasJugador = 3, PuntosJugador = 0, IndiceNaveEnemiga = 0;
     int Posicion_X_NaveJugador = 35, Posicion_Y_NaveJugador = 24;
@@ -227,7 +232,60 @@ void SpaceInvaders(){
 
 }
 
-// > FunciÛn InicioConsola. Establece las dimensiones, tÌtulo y marco de la consola.
+int CreaArch(){
+
+    struct Jugador jugador;
+    int Error = 0;
+    FILE *Punt_Arch;
+
+    if((Punt_Arch = fopen("Jugadores.txt", "a+")) != NULL){
+
+        fflush(stdin);
+
+        printf("Ingrese sus iniciales:");
+        fgets(jugador.Iniciales, 10, stdin);
+
+        jugador.PuntuacionFinal = 100;
+
+        fwrite(&jugador, sizeof(jugador), 1, Punt_Arch);
+
+        fclose(Punt_Arch);
+    }
+    else
+    {
+    printf("Error durante la creaci√≥n o apertura del Archivo.");
+    Error = 1;
+    }
+    return Error;
+}
+
+int LeerArch(){
+    int Error = 0;
+    FILE *Punt_Arch;
+    struct Jugador jugador;
+
+
+
+    if((Punt_Arch = fopen("Jugadores.txt", "r")) != NULL){
+        fread(&jugador, sizeof(jugador), 1, Punt_Arch);
+        printf("\t\tJUGADORES\n");
+        printf("INCIALES\t\t\tPUNTUACION\n");
+        
+        while(!feof(Punt_Arch)){
+            printf("%s",jugador.Iniciales);
+            printf("%d \n",jugador.PuntuacionFinal);
+            fread(&jugador, sizeof(jugador), 1, Punt_Arch);
+        }
+        fclose(Punt_Arch);
+
+    } else {
+        printf("Error durante la creaci√≥n o apertura del Archivo.");
+        Error = 1;
+    }
+    return Error;
+}
+
+// > Funci√≥n InicioConsola. Establece las dimensiones, t√≠tulo y marco de la consola.
 void InicioConsola(){
     OcultarCursor();
     SetConsoleTitle("Juego: Space Invaders");
@@ -235,15 +293,19 @@ void InicioConsola(){
 	Marco(0, 0, 80, 25, 3);
 }
 
-// > FunciÛn MAIN.
+// > Funci√≥n MAIN.
 int main(){
     srand(time(NULL));
     InicioConsola();
     SpaceInvaders();
     Gotoxy(26, 13);
     printf("--- Gracias por Jugar ---");
-    Gotoxy(5, 22);
+    Gotoxy(26, 15);
     getch();
+    int Error = 0;
+    Error = CreaArch();
+    if(!Error){
+        LeerArch();
+    }
     return 0;
 }
-
