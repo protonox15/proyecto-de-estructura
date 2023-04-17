@@ -4,7 +4,6 @@
 // > XAVIER CARRASCO //
 // > JOAN VERA //
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -22,7 +21,7 @@ char Iniciales[10];
 #define COLOR_RESET   "\x1b[0m"
 
 //{ Funciones del Sistema.
-// > Función Gotoxy. Permite posicionar el cursos en cualquier parte de la pantalla.
+// > FunciÃ³n Gotoxy. Permite posicionar el cursos en cualquier parte de la pantalla.
 void Gotoxy(int x,int y){
     // Sea X la columna, y Y la fila.
     HANDLE hcon;
@@ -33,7 +32,7 @@ void Gotoxy(int x,int y){
     SetConsoleCursorPosition(hcon,dwPos);
 }
 
-// > Función OcultarCursor, que hace el cursor [_] invisible.
+// > FunciÃ³n OcultarCursor, que hace el cursor [_] invisible.
 void OcultarCursor(){
     HANDLE hcon;
     hcon = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -43,29 +42,38 @@ void OcultarCursor(){
     SetConsoleCursorInfo(hcon, &cci);
 }
 
-// > Función Marco. Permite dibujar un recuadro con dimensiones específicas.
-void Marco(int xSup, int ySup, int xInf, int yInf, int Vidas){
-	// Impresión de líneas horizontales.
+//(Xavier Carrasco)
+void MostrarTemporizador(int segundos_restantes) {
+    Gotoxy(1, 1);//xavier carrasco
+    int minutos = segundos_restantes / 60;
+    int segundos = segundos_restantes % 60;
+    printf(" Tiempo: %02d:%02d", minutos, segundos);
+}
+
+
+// > FunciÃ³n Marco. Permite dibujar un recuadro con dimensiones especÃ­ficas.
+void Marco(int xSup, int ySup, int xInf, int yInf, int Vidas, int segundos_restantes){ //(xavier carrasco) segundos restantes
+	// ImpresiÃ³n de lÃ­neas horizontales.
 	for(int Indice = xSup; Indice <= xInf; Indice++){
 		Gotoxy(Indice, ySup); printf("%c", 196);
 		Gotoxy(Indice, yInf); printf("%c", 196);
 	}
 
-	// Impresión de líneas verticales.
+	// ImpresiÃ³n de lÃ­neas verticales.
 	for(int Indice = ySup; Indice <= yInf; Indice++){
 		Gotoxy(xSup, Indice); printf("%c", 179);
 		Gotoxy(xInf, Indice); printf("%c", 179);
 	}
 
-    // Impresión de la línea horizontal de título.
+    // ImpresiÃ³n de la lÃ­nea horizontal de tÃ­tulo.
     for(int Indice = 1; Indice <= 79; Indice++){
         Gotoxy(Indice, 2); printf("%c", 196);
 	}
 
-	// Impresión de la línea vertical de título.
+	// ImpresiÃ³n de la lÃ­nea vertical de tÃ­tulo.
 	Gotoxy(67, 1); printf("%c", 179);
 
-	// Impresión de las esquinas del marco.
+	// ImpresiÃ³n de las esquinas del marco.
 	Gotoxy(xSup, ySup); printf("%c", 218);
 	Gotoxy(xInf, yInf); printf("%c", 217);
 	Gotoxy(xInf, ySup); printf("%c", 191);
@@ -75,6 +83,8 @@ void Marco(int xSup, int ySup, int xInf, int yInf, int Vidas){
 	Gotoxy(67, 0); printf("%c", 194);
 	Gotoxy(67, 2); printf("%c", 193);
 
+    MostrarTemporizador(segundos_restantes);//(xavier carrasco)
+
     Gotoxy(69, 1); printf("Vidas:    ");
     switch(Vidas){
         case 3: Gotoxy(69, 1); printf("Vidas: %c%c%c", 3, 3, 3); break;
@@ -83,7 +93,7 @@ void Marco(int xSup, int ySup, int xInf, int yInf, int Vidas){
     }
 }
 
-// > Función BorrarPantalla. Limpia la pantalla.
+// > FunciÃ³n BorrarPantalla. Limpia la pantalla.
 void BorrarPantalla(){
     for(int indiceFila = 3; indiceFila <= 24; indiceFila++){
         for(int indiceColumna = 1; indiceColumna <= 79; indiceColumna++){
@@ -94,7 +104,7 @@ void BorrarPantalla(){
 }
 //}
 
-// > Función que imprime la nave del jugador (presentada de color verde en consola).
+// > FunciÃ³n que imprime la nave del jugador (presentada de color verde en consola).
 void NaveJugador(int Posicion_X, int Posicion_Y, bool LimpiarNave){
     if(LimpiarNave != true){
         // > Imprimir Nave.
@@ -117,7 +127,7 @@ void NaveJugador(int Posicion_X, int Posicion_Y, bool LimpiarNave){
     }
 }
 
-// > Función que imprime la nave enemiga (presentada de color rojo en consola).
+// > FunciÃ³n que imprime la nave enemiga (presentada de color rojo en consola).
 void NaveEnemigos(int Posicion_X, int Posicion_Y, bool LimpiarNave){
     if(LimpiarNave != true){
         // > Imprimir Nave.
@@ -135,7 +145,7 @@ void NaveEnemigos(int Posicion_X, int Posicion_Y, bool LimpiarNave){
 
 }
 
-// > Función que valida el disparo realizado por el usaurio.
+// > FunciÃ³n que valida el disparo realizado por el usaurio.
 void MovimientoDisparo(int Posicion_X, int Posicion_Y, bool LimpiarMisil){
     if(LimpiarMisil != true){
         Gotoxy(Posicion_X, Posicion_Y); printf("%c", 94);
@@ -152,22 +162,43 @@ struct NaveEnemiga{
     bool Nave_Muerta;
 }NavesEnemigas[60];
 
-// > Función principal: Aquí se hace el llamado a las otras funciones y se genera el movimiento del jugador.
+// > FunciÃ³n principal: AquÃ­ se hace el llamado a las otras funciones y se genera el movimiento del jugador.
 void SpaceInvaders(){
-    int VidasJugador = 3, PuntosJugador = 0, IndiceNaveEnemiga = 0;
+    int VelocidadNivel = 200;
+    int VidasJugador = 3, PuntosJugador = 0, IndiceNaveEnemiga = 0, IndiceNaves = 0, ContadorNaves, CantidadNaves = 0;
     int Posicion_X_NaveJugador = 35, Posicion_Y_NaveJugador = 24;
-    int MAXIMO_X_NAVE_ENEMIGA = 77 - 3, Posicion_X_NaveEnemiga = rand() % MAXIMO_X_NAVE_ENEMIGA + 3, Posicion_Y_NaveEnemiga = 3;
+    int MAXIMO_X_NAVE_ENEMIGA = 77 - 3; //Posicion_X_NaveEnemiga = rand() % MAXIMO_X_NAVE_ENEMIGA + 3, Posicion_Y_NaveEnemiga = 3;
     int Posicion_X_Misil, Posicion_Y_Misil;
+    int tiempo_inicial = time(NULL);//xavier carrasco
+    int tiempo_restante = 60;//xavier carrasco
     bool ContinuarJuego = true; char Tecla;
-    do{
-        Tecla = getch();
+    time_t inicioTiempo = time(NULL);//xavier carrasco
 
-        NaveEnemigos(Posicion_X_NaveEnemiga, Posicion_Y_NaveEnemiga, true);
+    // > Carga de las naves enemigas que aparecerÃ¡n por consola.
+
+    for(int Indice = 0; Indice < 60; Indice++){
+        NavesEnemigas[Indice].Posicion_X = rand() % MAXIMO_X_NAVE_ENEMIGA + 3;
+        NavesEnemigas[Indice].Posicion_Y = 3;
+        NavesEnemigas[Indice].Nave_Muerta = false;
+    }
+
+    do{
+        if(kbhit()) Tecla = getch();
+
+        ContadorNaves = IndiceNaves;
+        do{
+            if(NavesEnemigas[ContadorNaves].Nave_Muerta != true){
+                NaveEnemigos(NavesEnemigas[ContadorNaves].Posicion_X, NavesEnemigas[ContadorNaves].Posicion_Y, true);
+            }
+            ContadorNaves++;
+        } while(ContadorNaves <= CantidadNaves);
+
+        //NaveEnemigos(NavesEnemigas[ContadorNaves].Posicion_X, NavesEnemigas[ContadorNaves].Posicion_Y, true);
         NaveJugador(Posicion_X_NaveJugador, Posicion_Y_NaveJugador, true);
 
-        NavesEnemigas[IndiceNaveEnemiga].Posicion_X = Posicion_X_NaveEnemiga;
-        NavesEnemigas[IndiceNaveEnemiga].Posicion_Y = Posicion_Y_NaveEnemiga;
-        NavesEnemigas[IndiceNaveEnemiga].Nave_Muerta = false;
+        //NavesEnemigas[IndiceNaveEnemiga].Posicion_X = Posicion_X_NaveEnemiga;
+        //NavesEnemigas[IndiceNaveEnemiga].Posicion_Y = Posicion_Y_NaveEnemiga;
+        //NavesEnemigas[IndiceNaveEnemiga].Nave_Muerta = false;
 
         if((Posicion_X_NaveJugador >= 2 && Posicion_X_NaveJugador <= 75)){
             switch(Tecla){
@@ -199,113 +230,173 @@ void SpaceInvaders(){
         }
 
         MovimientoDisparo(Posicion_X_Misil, Posicion_Y_Misil, false);
-        Posicion_Y_NaveEnemiga++;
+
+        //Posicion_Y_NaveEnemiga++;
 
         if(Posicion_Y_Misil > 3){
            Posicion_Y_Misil--;
         }
 
+        ContadorNaves = IndiceNaves;
+        do{
+            if(NavesEnemigas[ContadorNaves].Nave_Muerta != true){
+                NavesEnemigas[ContadorNaves].Posicion_Y++;
+            }
+            ContadorNaves++;
+        } while(ContadorNaves <= CantidadNaves);
+
         IndiceNaveEnemiga++;
 
-        NaveEnemigos(Posicion_X_NaveEnemiga, Posicion_Y_NaveEnemiga, false);
+        ContadorNaves = IndiceNaves;
+        do{
+            if(NavesEnemigas[ContadorNaves].Nave_Muerta != true){
+               NaveEnemigos(NavesEnemigas[ContadorNaves].Posicion_X, NavesEnemigas[ContadorNaves].Posicion_Y, false);
+            }
+            ContadorNaves++;
+        } while(ContadorNaves <= CantidadNaves);
+
+
         NaveJugador(Posicion_X_NaveJugador, Posicion_Y_NaveJugador, false);
         MovimientoDisparo(Posicion_X_Misil, Posicion_Y_Misil, false);
 
-
-        if(Posicion_Y_NaveEnemiga == 25){
-            Gotoxy(2, 1); printf("Una nave enemiga ha logrado aterrizar. Pierde una vida.");
-            Posicion_Y_NaveEnemiga = 3;
-            Sleep(1000);
-            Gotoxy(2, 1); printf("                                                       ");
-            VidasJugador--;
-            Marco(0, 0, 80, 25, VidasJugador);
-            BorrarPantalla();
+        for(int Indice = 0; Indice < 60; Indice++){
+            if(NavesEnemigas[Indice].Posicion_Y == 24){
+                Gotoxy(2, 1); printf("Una nave enemiga ha logrado aterrizar. Pierde una vida.");
+                NavesEnemigas[Indice].Posicion_Y = 3;
+                NavesEnemigas[Indice].Nave_Muerta = true;
+                Sleep(1000);
+                Gotoxy(2, 1); printf("                                                       ");
+                VidasJugador--;
+                int tiempoRestante = 60 - (int)difftime(time(NULL), inicioTiempo); //Xavier Carrasco
+                Marco(0, 0, 80, 25, VidasJugador, tiempoRestante); //Xavier Carrasco
+                BorrarPantalla();
+                //IndiceNaves++;
+                CantidadNaves++;
+                break;
+            }
         }
 
+
         if(VidasJugador == 0){
-            Gotoxy(2, 1); printf("Ha perdido todas sus vidas. Juego finalizado.");
+            Gotoxy(30, 1); printf("Juego finalizado.");
             ContinuarJuego = false;
             Sleep(1000);
+        }
+
+        int tiempo_actual = time(NULL); //Xavier Carrasco
+        int segundos_transcurridos = tiempo_actual - tiempo_inicial; //Xavier Carrasco
+        tiempo_restante = 60 - segundos_transcurridos; //Xavier Carrasco
+
+        MostrarTemporizador(tiempo_restante); //Xavier Carrasco
+
+        if (tiempo_restante <= 0) { //Xavier Carrasco
+            Gotoxy(2, 1);
+            printf("Se ha agotado el tiempo. Juego finalizado.");
+            ContinuarJuego = false;
+            Sleep(VelocidadNivel);
+        } //Xavier carrasco
+        Sleep(VelocidadNivel);
+
+        switch(ContadorNaves){
+            case 10: VelocidadNivel = 100; break;
+            case 20:VelocidadNivel = 50; break;
         }
 
     } while(ContinuarJuego == true);
 
 }
 
-int CreaArch(){
+int CreaArch(){ //JOANVERA
+    struct Jugador jugador;//JOANVERA
+    int Error = 0;//JOANVERA
+    FILE *Punt_Arch;//JOANVERA
 
-    struct Jugador jugador;
-    int Error = 0;
-    FILE *Punt_Arch;
-
-    if((Punt_Arch = fopen("Jugadores.txt", "a+")) != NULL){
-
+    if((Punt_Arch = fopen("Jugadores.dat", "a+b")) != NULL){//JOANVER
         fflush(stdin);
-
         printf("Ingrese sus iniciales:");
         fgets(jugador.Iniciales, 10, stdin);
-
         jugador.PuntuacionFinal = 100;
-
         fwrite(&jugador, sizeof(jugador), 1, Punt_Arch);
-
         fclose(Punt_Arch);
-    }
+    }//JOANVERA
     else
     {
     printf("Error durante la creación o apertura del Archivo.");
     Error = 1;
     }
     return Error;
-}
+}//JOANVERA
 
-int LeerArch(){
+int LeerArch(){//JOANVERA
     int Error = 0;
-    FILE *Punt_Arch;
+    FILE *Punt_Arch;//JOANVERA
     struct Jugador jugador;
-
-
-
-    if((Punt_Arch = fopen("Jugadores.txt", "r")) != NULL){
+    if((Punt_Arch = fopen("Jugadores.dat", "rb")) != NULL){
         fread(&jugador, sizeof(jugador), 1, Punt_Arch);
-        printf("\t\tJUGADORES\n");
-        printf("INCIALES\t\t\tPUNTUACION\n");
-        
-        while(!feof(Punt_Arch)){
-            printf("%s",jugador.Iniciales);
-            printf("%d \n",jugador.PuntuacionFinal);
+        Gotoxy(29, 15); printf("JUGADORES\n");//JOANVERA
+        Gotoxy(20, 17); printf("INICIALES\t\t\tPUNTUACION\n");
+        int ContadorGotoxy = 18;
+        while(!feof(Punt_Arch)){//JOANVERA
+            Gotoxy(20, ContadorGotoxy); printf("%s", jugador.Iniciales);//JOANVERA
+            Gotoxy(50, ContadorGotoxy); printf("%d", jugador.PuntuacionFinal);//JOANVERA
+            //printf("%s\t\t%d",jugador.Iniciales,jugador.PuntuacionFinal);//JOANVERA
+            ContadorGotoxy++;
             fread(&jugador, sizeof(jugador), 1, Punt_Arch);
-        }
+        }//JOANVERA
         fclose(Punt_Arch);
-
     } else {
         printf("Error durante la creación o apertura del Archivo.");
         Error = 1;
     }
-    return Error;
-}
+    return Error;//JOANVERA
+}//JOANVERA
 
-// > Función InicioConsola. Establece las dimensiones, título y marco de la consola.
+// > FunciÃ³n InicioConsola. Establece las dimensiones, tÃ­tulo y marco de la consola.
 void InicioConsola(){
     OcultarCursor();
     SetConsoleTitle("Juego: Space Invaders");
     system("mode con: cols=81 lines=26");
-	Marco(0, 0, 80, 25, 3);
+	Marco(0, 0, 80, 25, 3, 60);//(xavier carrasco)(60)
 }
 
-// > Función MAIN.
+// FunciÃ³n que muestra el menÃº de inicio y espera la entrada del usuario. //(Xavier Carrasco)
+void MostrarMenuInicio(){
+    Gotoxy(32, 10);
+    printf("SPACE INVADERS");
+    Gotoxy(26, 12);
+    printf("Presione ENTER para comenzar");
+    Gotoxy(28, 14);
+    printf("Presione ESC para salir");
+
+    while(1){
+        int tecla = getch();
+        if(tecla == 13) {
+            break;
+        }
+        else if(tecla == 27) {
+            exit(0);
+        }
+    }
+
+    BorrarPantalla(); // Limpia la pantalla antes de que comience el juego
+}
+
+// > FunciÃ³n MAIN.
 int main(){
     srand(time(NULL));
     InicioConsola();
+    MostrarMenuInicio();
     SpaceInvaders();
     Gotoxy(26, 13);
     printf("--- Gracias por Jugar ---");
-    Gotoxy(26, 15);
+    Sleep(1000);//JOANVERA
+    BorrarPantalla();//JOANVERA
+    Gotoxy(26, 13);//JOANVERA
     getch();
-    int Error = 0;
-    Error = CreaArch();
-    if(!Error){
-        LeerArch();
-    }
+    int Error = 0;//JOANVERA
+    Error = CreaArch();//JOANVERA
+    if(!Error){//JOANVERA
+        LeerArch();//JOANVERA
+    }//JOANVERA
     return 0;
 }
